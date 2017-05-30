@@ -1,0 +1,27 @@
+pkgname=device-asus-grouper
+pkgver=1
+pkgrel=2
+pkgdesc="Nexus 7 2012"
+url="https://github.com/postmarketOS"
+arch="noarch"
+license="FIXME"
+depends="linux-asus-grouper"
+makedepends=""
+install=""
+subpackages=""
+source="deviceinfo 90-android.rules"
+options="!check"
+
+build() {
+	return 0
+}
+
+package() {
+	install -D -m644 "$srcdir/deviceinfo" \
+		"$pkgdir/etc/deviceinfo"
+	install -D -m644 "$srcdir"/90-android.rules \
+		"$pkgdir"/etc/udev/rules.d/90-android.rules
+}
+
+sha512sums="0fc77286f0ac162e83db3da45fd9090c020ab2954f9920b5e19ad42ae630557801c6f6abe68258223405ad2745374b1dbec47d6bdce1a2bbf7ece5358176b639  deviceinfo
+8aead706ddb118a44de7d049f07d10a27e727d17724058d132e4ec4fa73fed29c9ccfe03f02aca459c922ec0fbba24e171fe3c76e33f7c5462631e3dd5506e36  90-android.rules"
