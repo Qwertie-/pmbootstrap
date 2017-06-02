@@ -32,6 +32,7 @@ source="
 	https://github.com/LineageOS/android_kernel_asus_grouper/archive/${_hash}.zip
 	$_config
 	compiler-gcc6.h
+	duplicate-return-address-definition.patch
 "
 subpackages=""
 license="GPL2"
@@ -101,5 +102,6 @@ package() {
 }
 
 sha512sums="03d7c2073e6998d4c414267956691300fbd4a1d8b6ea8a773ea906ba306329269aaa47734fc91f65069861f07a4d5b9f63b8f1160c671aa21445ae4196cdec27  953e26f2709dfe0c185c3c99c50b0c9d56d473a4.zip
-fafb88bbe9e46fff1d9726e16086288e8813f64f9bbe9efadfa0b56d63e9f1f608b321fd06e92230dac0242d33593ef357af3d2dc1d9123f8103b39c2470b74d  config-asus-grouper.armhf
-d80980e9474c82ba0ef1a6903b434d8bd1b092c40367ba543e72d2c119301c8b2d05265740e4104ca1ac5d15f6c4aa49e8776cb44264a9a28dc551e0d1850dcc  compiler-gcc6.h"
+a448627bce55f0c3064275c73f52db39e1ef5676fd0689ec7a0258dc701906194d5337808ceea99536f90e61297a3027e08439de66e52e7a8ca35c0d1404b014  config-asus-grouper.armhf
+d80980e9474c82ba0ef1a6903b434d8bd1b092c40367ba543e72d2c119301c8b2d05265740e4104ca1ac5d15f6c4aa49e8776cb44264a9a28dc551e0d1850dcc  compiler-gcc6.h
+9b15bf1f6cb66f54c785b0af6c9db8a7d63257e6fa3eeb0cbf47284334166aa6a7ff93e1b64ab69206c8047d64641199c0f5fcbc257bbe039263252fff45118e  duplicate-return-address-definition.patch"
