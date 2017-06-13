@@ -21,6 +21,7 @@ import logging
 
 import pmb.build
 import pmb.build.autodetect
+import pmb.build.buildinfo
 import pmb.build.crosscompiler
 import pmb.chroot
 import pmb.chroot.apk
@@ -29,11 +30,12 @@ import pmb.parse
 import pmb.parse.arch
 
 
-def package(args, pkgname, carch, force=False, recurse=True):
+def package(args, pkgname, carch, force=False, recurse=True, buildinfo=False):
     """
     Build a package with Alpine Linux' abuild.
 
     :param force: even build, if not necessary
+    :returns: output path relative to the packages folder
     """
     # Get aport, skip upstream only packages
     aport = pmb.build.find_aport(args, pkgname, False)
@@ -51,15 +53,15 @@ def package(args, pkgname, carch, force=False, recurse=True):
     cross = pmb.build.autodetect.crosscompile(args, apkbuild, carch_buildenv,
                                               suffix)
 
-    # Skip already built versions
-    if not force and not pmb.build.is_necessary(args, suffix,
-                                                carch_buildenv, apkbuild):
-        return
-
-    # Build dependencies first
+    # Build dependencies first (they may be outdated, even if they exist)
     if recurse:
         for depend in apkbuild["depends"]:
             package(args, depend, carch)
+
+    # Skip already built versions
+    if not force and not pmb.build.is_necessary(
+            args, carch_buildenv, apkbuild):
+        return
 
     # Install build tools and makedepends
     pmb.build.init(args, suffix)
@@ -109,6 +111,14 @@ def package(args, pkgname, carch, force=False, recurse=True):
     if not os.path.exists(path):
         raise RuntimeError("Package not found after build: " + path)
 
+    # Create .buildinfo.json file
+    if buildinfo:
+        logging.info("(" + suffix + ") generate " + output + ".buildinfo.json")
+        pmb.build.buildinfo.write(args, output, carch_buildenv, suffix,
+                                  apkbuild)
+
     # Symlink noarch packages
     if "noarch" in apkbuild["arch"]:
         pmb.build.symlink_noarch_package(args, output)
+
+    return output

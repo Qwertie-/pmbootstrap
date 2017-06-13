@@ -100,7 +100,7 @@ get_modules()
 # Get the paths to all binaries and their dependencies
 get_binaries()
 {
-	BINARIES="/bin/busybox /sbin/cryptsetup /usr/sbin/telnetd /sbin/kpartx"
+	BINARIES="/bin/busybox /bin/busybox-extras /sbin/cryptsetup /usr/sbin/telnetd /sbin/kpartx"
 	lddtree -l $BINARIES | sort -u
 }
 
@@ -159,5 +159,12 @@ done
 # finish up
 replace_init_variables
 create_cpio_image
+
+# create uInitrd if the device uses legacy u-boot images
+if [ "${deviceinfo_generate_legacy_uboot_initfs}" == "true" ]; then
+    echo "==> initramfs: creating uInitrd"
+    mkimage -A arm -T ramdisk -C none -n uInitrd -d "$outfile" $(dirname "$outfile")/uInitrd
+fi
+
 rm -rf "$tmpdir"
 exit 0

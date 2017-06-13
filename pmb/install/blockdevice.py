@@ -18,18 +18,11 @@ along with pmbootstrap.  If not, see <http://www.gnu.org/licenses/>.
 """
 import logging
 import os
+import glob
 import pmb.helpers.mount
 import pmb.install.losetup
 import pmb.helpers.cli
 import pmb.config
-import fnmatch
-
-
-def sdcard_validate_path(args):
-    for pattern in pmb.config.install_valid_sdcard_devices:
-        if fnmatch.fnmatch(args.sdcard, pattern):
-            return True
-    return False
 
 
 def mount_sdcard(args):
@@ -40,9 +33,10 @@ def mount_sdcard(args):
     if not os.path.exists(args.sdcard):
         raise RuntimeError("The sdcard device does not exist: " +
                            args.sdcard)
-    if not sdcard_validate_path(args):
-        raise RuntimeError("The sdcard path does not look valid. We will"
-                           " not attempt to format this!")
+    for path in glob.glob(args.sdcard + "*"):
+        if pmb.helpers.mount.ismount(path):
+            raise RuntimeError(path + " is mounted! We will not attempt"
+                               " to format this!")
     if pmb.helpers.cli.ask(args, "EVERYTHING ON " + args.sdcard + " WILL BE"
                            " ERASED! CONTINUE?") != "y":
         raise RuntimeError("Aborted.")
@@ -76,7 +70,12 @@ def create_and_mount_image(args):
         raise RuntimeError("Aborted.")
 
     pmb.chroot.user(args, ["mkdir", "-p", "/home/user/rootfs"])
-    pmb.chroot.root(args, ["fallocate", "-l", size, img_path])
+    pmb.chroot.root(args, ["fallocate", "-l", size, img_path], check=False)
+    if not os.path.exists(img_path_outside):
+        logging.debug("WARNING: fallocate failed, falling back to truncate."
+                      " More info: https://github.com/postmarketOS/pmbootstrap/issues/28")
+        pmb.chroot.apk.install(args, ["coreutils"])
+        pmb.chroot.root(args, ["truncate", "-s", size, img_path])
 
     # Mount to /dev/install
     logging.info("(native) mount /dev/install (" + args.device + ".img)")
